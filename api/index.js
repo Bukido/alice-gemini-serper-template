@@ -291,7 +291,7 @@ async function askYandex(text, history, searchContext, timeoutMs) {
         instructions: SYSTEM_PROMPT,
         input,
         temperature: 0.7,
-        max_output_tokens: 240
+        max_output_tokens: 400
       })
     },
     Math.min(YANDEX_TIMEOUT_MS, timeoutMs)
