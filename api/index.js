@@ -1,7 +1,7 @@
-const MODEL_ID = "deepseek-v4.1-flash";
+const MODEL_ID = "yandexgpt-5-lite";
 
-const MAX_HISTORY_MESSAGES = 8;
-const MAX_HISTORY_MESSAGE_CHARS = 1200;
+const MAX_HISTORY_MESSAGES = 6;
+const MAX_HISTORY_MESSAGE_CHARS = 900;
 const MAX_ALICE_TEXT = 1024;
 
 const TOTAL_RESPONSE_BUDGET_MS = 4500;
