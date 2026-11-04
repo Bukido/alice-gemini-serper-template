@@ -1,4 +1,4 @@
-const MODEL_ID = "qwen3.6-35b-a3b";
+const MODEL_ID = "deepseek-v4-flash";
 
 const MAX_HISTORY_MESSAGES = 4;
 const MAX_HISTORY_MESSAGE_CHARS = 600;
