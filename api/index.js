@@ -1,8 +1,8 @@
 const MODEL_ID = "qwen3.6-35b-a3b";
 
-const MAX_HISTORY_MESSAGES = 4;
-const MAX_HISTORY_MESSAGE_CHARS = 600;
-const MAX_ALICE_TEXT = 450;
+const MAX_HISTORY_MESSAGES = 8;
+const MAX_HISTORY_MESSAGE_CHARS = 1200;
+const MAX_ALICE_TEXT = 1024;
 
 const TOTAL_RESPONSE_BUDGET_MS = 4500;
 const SEARCH_TIMEOUT_MS = 600;
@@ -289,7 +289,7 @@ reasoning: {
 text: {
   verbosity: "low"
 },
-max_output_tokens: 160
+max_output_tokens: 200
       })
     },
     Math.min(YANDEX_TIMEOUT_MS, timeoutMs)
