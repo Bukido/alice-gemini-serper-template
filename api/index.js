@@ -1,6 +1,6 @@
 const MODEL_ID = "deepseek-v4.1-flash";
 
-const MAX_HISTORY_MESSAGES = 5;
+const MAX_HISTORY_MESSAGES = 4;
 const MAX_HISTORY_MESSAGE_CHARS = 600;
 const MAX_ALICE_TEXT = 450;
 
