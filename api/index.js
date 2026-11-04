@@ -1,8 +1,8 @@
 const MODEL_ID = "speech-realtime-deepseek-v4-flash";
 
-const MAX_HISTORY_MESSAGES = 6;
-const MAX_HISTORY_MESSAGE_CHARS = 900;
-const MAX_ALICE_TEXT = 1024;
+const MAX_HISTORY_MESSAGES = 5;
+const MAX_HISTORY_MESSAGE_CHARS = 600;
+const MAX_ALICE_TEXT = 450;
 
 const TOTAL_RESPONSE_BUDGET_MS = 4500;
 const SEARCH_TIMEOUT_MS = 600;
@@ -298,7 +298,7 @@ async function askYandex(text, history, searchContext, timeoutMs) {
         instructions: SYSTEM_PROMPT,
         input,
         temperature: 0.7,
-        max_output_tokens: 200
+        max_output_tokens: 160
       })
     },
     Math.min(YANDEX_TIMEOUT_MS, timeoutMs)
