@@ -1,4 +1,3 @@
-
 const MODEL_ID = "deepseek-v4.1-flash";
 
 const MAX_HISTORY_MESSAGES = 8;
@@ -11,7 +10,7 @@ const YANDEX_TIMEOUT_MS = 3700;
 
 const SYSTEM_PROMPT = `
 
-  
+
 Ты — собеседница, с которой интересно разговаривать. Общайся естественно, живо и по-человечески. Не изображай виртуального помощника, не пытайся постоянно понравиться и не играй заранее прописанную роль.
 
 ТВОЯ МАНЕРА ОБЩЕНИЯ:
@@ -146,11 +145,21 @@ function safeHistory(history) {
 
 async function fetchJson(url, options, timeoutMs) {
   const controller = new AbortController();
+  const startedAt = Date.now();
+  const actualTimeout = Math.max(100, Number(timeoutMs) || 0);
 
-  const timer = setTimeout(
-    () => controller.abort(),
-    Math.max(100, timeoutMs)
-  );
+  const service = url.includes("ai.api.cloud.yandex.net")
+    ? "yandex"
+    : url.includes("google.serper.dev")
+      ? "serper"
+      : "other";
+
+  let timeoutTriggered = false;
+
+  const timer = setTimeout(() => {
+    timeoutTriggered = true;
+    controller.abort();
+  }, actualTimeout);
 
   try {
     const response = await fetch(url, {
@@ -160,7 +169,36 @@ async function fetchJson(url, options, timeoutMs) {
 
     const data = await response.json().catch(() => ({}));
 
+    console.log("FETCH DIAGNOSTICS:", JSON.stringify({
+      service,
+      http_status: response.status,
+      timeout_ms: actualTimeout,
+      elapsed_ms: Date.now() - startedAt,
+      timeout_triggered: timeoutTriggered
+    }));
+
     return { response, data };
+
+  } catch (error) {
+    const elapsedMs = Date.now() - startedAt;
+
+    console.warn("FETCH DIAGNOSTICS ERROR:", JSON.stringify({
+      service,
+      timeout_ms: actualTimeout,
+      elapsed_ms: elapsedMs,
+      timeout_triggered: timeoutTriggered,
+      error_name: error?.name || null,
+      error_message: error?.message || String(error)
+    }));
+
+    if (timeoutTriggered) {
+      const timeoutError = new Error("LOCAL_FETCH_TIMEOUT");
+      timeoutError.cause = error;
+      throw timeoutError;
+    }
+
+    throw error;
+
   } finally {
     clearTimeout(timer);
   }
@@ -321,6 +359,7 @@ function errorForUser(error) {
       return "Превышен лимит запросов к нейросети. Попробуйте позже.";
 
     case "TIME_BUDGET_EXHAUSTED":
+    case "LOCAL_FETCH_TIMEOUT":
     case "AbortError":
       return "Не успела подготовить ответ. Попробуй спросить ещё раз, чуть короче.";
 
@@ -349,6 +388,12 @@ export default async function handler(req, res) {
 
   const remainingMs = () =>
     TOTAL_RESPONSE_BUDGET_MS - (Date.now() - startedAt);
+
+  console.log("ALICE WEBHOOK START:", JSON.stringify({
+    method: req.method,
+    budget_ms: TOTAL_RESPONSE_BUDGET_MS,
+    timestamp: new Date().toISOString()
+  }));
 
   const body =
     req.body && typeof req.body === "object"
@@ -391,15 +436,29 @@ export default async function handler(req, res) {
       );
     }
 
+    const yandexTimeout = Math.max(
+      0,
+      Math.min(YANDEX_TIMEOUT_MS, remainingMs() - 400)
+    );
+
+    console.log("YANDEX REQUEST START:", JSON.stringify({
+      timeout_ms: yandexTimeout,
+      remaining_budget_ms: remainingMs(),
+      history_messages: oldHistory.length,
+      user_text_length: text.length
+    }));
+
     const answer = await askYandex(
       text,
       oldHistory,
       searchContext,
-      Math.max(
-        0,
-        Math.min(YANDEX_TIMEOUT_MS, remainingMs() - 400)
-      )
+      yandexTimeout
     );
+
+    console.log("ALICE WEBHOOK SUCCESS:", JSON.stringify({
+      elapsed_ms: Date.now() - startedAt,
+      answer_length: answer.length
+    }));
 
     const history = [
       ...oldHistory,
@@ -423,10 +482,12 @@ export default async function handler(req, res) {
         ? "TIME_BUDGET_EXHAUSTED"
         : error;
 
-    console.warn(
-      "Alice webhook fallback:",
-      safeError?.message || "unknown error"
-    );
+    console.warn("ALICE WEBHOOK FALLBACK:", JSON.stringify({
+      error: safeError?.message || "unknown error",
+      error_name: safeError?.name || null,
+      elapsed_ms: Date.now() - startedAt,
+      remaining_budget_ms: remainingMs()
+    }));
 
     return res.status(200).json(
       aliceResponse(errorForUser(safeError), false, oldHistory)
