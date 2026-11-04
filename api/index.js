@@ -438,7 +438,7 @@ export default async function handler(req, res) {
 
     const yandexTimeout = Math.max(
       0,
-      Math.min(YANDEX_TIMEOUT_MS, remainingMs() - 400)
+      Math.min(YANDEX_TIMEOUT_MS, remainingMs() - 150)
     );
 
     console.log("YANDEX REQUEST START:", JSON.stringify({
