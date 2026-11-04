@@ -1,4 +1,4 @@
-const MODEL_ID = "yandexgpt-5.1";
+const MODEL_ID = "speech-realtime-deepseek-v4-flash";
 
 const MAX_HISTORY_MESSAGES = 6;
 const MAX_HISTORY_MESSAGE_CHARS = 900;
