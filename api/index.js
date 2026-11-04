@@ -182,6 +182,7 @@ async function searchWeb(query, timeoutMs) {
   }
 }
 
+
 async function askYandex(text, history, searchContext, timeoutMs) {
   const key = process.env.YANDEX_API_KEY;
   const folderId = process.env.YANDEX_FOLDER_ID;
@@ -254,6 +255,15 @@ async function askYandex(text, history, searchContext, timeoutMs) {
   }
 
   answer = String(answer).trim();
+
+  // Диагностика ответа Яндекса
+  console.log("YANDEX DIAGNOSTICS:", JSON.stringify({
+    http_status: response.status,
+    model_status: data.status || null,
+    incomplete_details: data.incomplete_details || null,
+    output_preview: answer.slice(0, 500),
+    error: data.error || null
+  }));
 
   if (!answer) {
     throw new Error("YANDEX_EMPTY_RESPONSE");
