@@ -1,4 +1,4 @@
-const MODEL_ID = "speech-realtime-deepseek-v4-flash";
+const MODEL_ID = "deepseek-v4.1-flash";
 
 const MAX_HISTORY_MESSAGES = 5;
 const MAX_HISTORY_MESSAGE_CHARS = 600;
