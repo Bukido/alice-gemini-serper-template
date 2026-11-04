@@ -7,7 +7,7 @@ const MAX_ALICE_TEXT = 1024;
 
 const TOTAL_RESPONSE_BUDGET_MS = 3600;
 const SEARCH_TIMEOUT_MS = 600;
-const YANDEX_TIMEOUT_MS = 2600;
+const YANDEX_TIMEOUT_MS = 3100;
 
 const SYSTEM_PROMPT = `
 Ты — разговорный голосовой собеседник в навыке Яндекс Алисы.
