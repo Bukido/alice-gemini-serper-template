@@ -22,10 +22,13 @@ const SYSTEM_PROMPT = `
 `;
 
 function aliceResponse(text, endSession = false, history = []) {
+  const answer = fitAliceText(text);
+
   return {
     version: "1.0",
     response: {
-      text: fitAliceText(text),
+      text: answer,
+      tts: answer,
       end_session: endSession
     },
     session_state: { history }
